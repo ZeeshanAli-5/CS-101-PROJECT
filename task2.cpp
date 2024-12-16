@@ -52,6 +52,15 @@ void update(char userGuess, char arr[], const char* chosen, int& incorrectGuess,
     }
 }
 
+bool isDuplicate(char userGuess, const char guessedChars[], int guessCount) {
+    for (int i = 0; i < guessCount; i++) {
+        if (guessedChars[i] == userGuess) {
+            return true;
+        }
+    }
+    return false;
+}
+
 void display(int incorrectGuess, char arr[], int length) {
     cout << "INCORRECT GUESSES: " << incorrectGuess << "\n";
     for (int i = 0; i < length; i++) {
@@ -66,8 +75,8 @@ int main() {
     const char* chosen = chosenCountry(countries, 20);
     int length = strlen(chosen);
     char arr[length + 1];  // Dash display
-    char incorrectChar[12] = {'\0'};  // Tracks incorrect guesses
-    int incorrectGuess = 0, noOfCorrectGuess = 0;  // Counts no of correct and incorrect entries
+    char guessedChars[26] = {'\0'};  // Tracks guessed characters (max 26 for alphabets)
+    int incorrectGuess = 0, noOfCorrectGuess = 0, guessCount = 0;  // Counts no of correct and incorrect entries
     char userGuess = ' ';  // User input
 
     for (int i = 0; i < length; i++) {
@@ -78,8 +87,20 @@ int main() {
     while (incorrectGuess < 11 && noOfCorrectGuess != length) {
         clearScreen();
         display(incorrectGuess, arr, length);
-        cout << "Enter a guess: ";
-        cin >> userGuess;
+
+        // Get a valid guess
+        do {
+            cout << "Enter a guess: ";
+            cin >> userGuess;
+            userGuess = tolower(userGuess);  // Convert to lowercase for consistency
+
+            if (isDuplicate(userGuess, guessedChars, guessCount)) {
+                cout << "You already guessed that letter! Try a different one.\n";
+            }
+        } while (isDuplicate(userGuess, guessedChars, guessCount));
+
+        // Record the valid guess
+        guessedChars[guessCount++] = userGuess;
 
         update(userGuess, arr, chosen, incorrectGuess, noOfCorrectGuess);
     }

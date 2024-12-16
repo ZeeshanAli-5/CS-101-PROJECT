@@ -11,6 +11,7 @@ const char* chosenCountry(const char* array[], int size) {
     int temp = rand() % size;
     return array[temp];
 }
+
 void clearScreen() {
 #ifdef _WIN32
     system("cls"); // For Windows
@@ -20,7 +21,7 @@ void clearScreen() {
 }
 
 void hangMan(int incorrectGuess) {
-    switch(incorrectGuess) {
+    switch (incorrectGuess) {
         case 0: cout << "\n\n\n\n\n"; break;
         case 1: cout << "\n\n\n\n\n____\n"; break;
         case 2: cout << "\n |\n |\n |\n |\n____\n"; break;
@@ -35,76 +36,60 @@ void hangMan(int incorrectGuess) {
     }
 }
 
-int update(char userGuess, char arr[], int length, const char* chosen, int &incorrectGuess,int &noOfCorrectGuess) {
+void update(char userGuess, char arr[], const char* chosen, int& incorrectGuess, int& noOfCorrectGuess) {
     bool found = false;
-    for(int i = 0; chosen[i] != '\0'; i++){
-        if(userGuess == chosen[i]){
-            arr[i] = chosen[i];
+    for (int i = 0; chosen[i] != '\0'; i++) {
+        if (userGuess == chosen[i]) {
+            if (arr[i] == '_') {
+                arr[i] = chosen[i];
+                noOfCorrectGuess++;
+            }
             found = true;
-            noOfCorrectGuess++;
         }
-        
     }
-    if(found == false){
+    if (!found) {
         incorrectGuess++;
     }
-    return 0;
 }
 
-int display(int incorrectGuess, char arr[], int length, char &userGuess) {
+void display(int incorrectGuess, char arr[], int length) {
     cout << "INCORRECT GUESSES: " << incorrectGuess << "\n";
     for (int i = 0; i < length; i++) {
-        cout << arr[i];
+        cout << arr[i] << " ";
     }
-    cout<<"\n";
+    cout << "\n";
     hangMan(incorrectGuess);
-    
-    cout << "Enter a Guess: ";
-    cin >> userGuess;
-
-    return userGuess;
-}
-
-void checkInput(char userGuess, char arr[], char incorrectChar[], int noOfCorrectGuess){
-    for(int i = 0; i < 11; i++){
-        if(userGuess == incorrectChar[i] || userGuess == arr[i]){
-            noOfCorrectGuess--;
-        };
-    }
 }
 
 int main() {
     srand(time(NULL));
     const char* chosen = chosenCountry(countries, 20);
     int length = strlen(chosen);
-    char arr[length + 1];  //  dash display
-    char* incorrectChar[12];
-    int incorrectGuess = 0 , noOfCorrectGuess = 0;   //counts no of correct and incorrect entries
-    char userGuess = ' ';       //user input
+    char arr[length + 1];  // Dash display
+    char incorrectChar[12] = {'\0'};  // Tracks incorrect guesses
+    int incorrectGuess = 0, noOfCorrectGuess = 0;  // Counts no of correct and incorrect entries
+    char userGuess = ' ';  // User input
 
-    for (int i = 0; i < length; i++) {     //  _ _ _ _ _ display
-
-        arr[i] = '_';
-        incorrectChar[i] = "_";
+    for (int i = 0; i < length; i++) {
+        arr[i] = '_';  // Initialize the word display with dashes
     }
     arr[length] = '\0';
-    while(incorrectGuess < 11 && noOfCorrectGuess != length){
-    	
-		
+
+    while (incorrectGuess < 11 && noOfCorrectGuess != length) {
         clearScreen();
-        userGuess = display(incorrectGuess, arr, length, userGuess);
-        checkInput(userGuess,arr,*incorrectChar,noOfCorrectGuess);
-        update(userGuess, arr, length, chosen, incorrectGuess,noOfCorrectGuess);
-        
-        if(noOfCorrectGuess == length){
-    	clearScreen();
-    	cout<<"Congratulations! You won...";
-	}else if(incorrectGuess >= 11){
-		cout<<"You Lost!  The correct name was "<<chosen;
-	}
-   
+        display(incorrectGuess, arr, length);
+        cout << "Enter a guess: ";
+        cin >> userGuess;
+
+        update(userGuess, arr, chosen, incorrectGuess, noOfCorrectGuess);
     }
-    
-    
+
+    clearScreen();
+    if (noOfCorrectGuess == length) {
+        cout << "Congratulations! You won!\n";
+    } else {
+        cout << "You lost! The correct name was: " << chosen << "\n";
+    }
+
     return 0;
 }
